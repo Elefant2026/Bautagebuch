@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unser Bautagebuch – Haus-Sanierung</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e67e22;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80') center/cover;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        header h1 { margin: 0; font-size: 2.5rem; }
+        header p { font-size: 1.2rem; opacity: 0.9; }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav a {
+            color: white;
+            padding: 15px 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        nav a:hover { background-color: var(--secondary); }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Timeline / Bautagebuch */
+        .timeline-item {
+            border-left: 4px solid var(--secondary);
+            padding-left: 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-date {
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .timeline-img {
+            max-width: 100%;
+            border-radius: 6px;
+            margin-top: 10px;
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        /* Formulare */
+        form input, form textarea, form select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 18px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        /* Handwerker Tabellen */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th { background-color: #eee; }
+
+        .share-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            nav { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Unser Bautagebuch</h1>
+        <p>Die Sanierung unseres Einfamilienhauses Schritt für Schritt</p>
+    </header>
+
+    <nav>
+        <a href="#" onclick="showSection('tagebuch')">Bautagebuch</a>
+        <a href="#" onclick="showSection('handwerker')">Handwerksfirmen</a>
+        <a href="#" onclick="showSection('neu')">+ Eintrag hinzufügen</a>
+        <a href="#" onclick="showSection('teilen')">Teilen</a>
+    </nav>
+
+    <div class="container">
+
+        <!-- SECTION 1: BAUTAGEBUCH -->
+        <div id="tagebuch" class="section active">
+            <h2>Aktueller Fortschritt</h2>
+            <div id="timeline-container">
+                <!-- Einträge werden hier dynamisch eingefügt -->
+            </div>
+        </div>
+
+        <!-- SECTION 2: HANDWERKER -->
+        <div id="handwerker" class="section">
+            <h2>Beteiligte Handwerksfirmen</h2>
+            <div class="card">
+                <h3>Firma hinzufügen</h3>
+                <form id="handwerker-form">
+                    <input type="text" id="hw-gewerk" placeholder="Gewerk (z.B. Elektriker, Sanitär)" required>
+                    <input type="text" id="hw-name" placeholder="Firmenname" required>
+                    <input type="text" id="hw-kontakt" placeholder="Ansprechpartner / Telefon / E-Mail">
+                    <button type="submit">Firma speichern</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Firmenübersicht</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Gewerk</th>
+                            <th>Firma</th>
+                            <th>Kontakt</th>
+                        </tr>
+                    </thead>
+                    <tbody id="handwerker-list">
+                        <!-- Handwerker werden hier geladen -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 3: NEUER EINTRAG -->
+        <div id="neu" class="section">
+            <div class="card">
+                <h2>Neuen Bauschritt dokumentieren</h2>
+                <form id="entry-form">
+                    <label>Datum:</label>
+                    <input type="date" id="entry-date" required>
+
+                    <label>Titel des Bauschritts:</label>
+                    <input type="text" id="entry-title" placeholder="z.B. Abriss Wand Wohnzimmer" required>
+
+                    <label>Beschreibung / Notizen:</label>
+                    <textarea id="entry-desc" rows="4" placeholder="Was wurde genau gemacht? Gab es Besonderheiten?"></textarea>
+
+                    <label>Foto hinzufügen:</label>
+                    <input type="file" id="entry-image" accept="image/*">
+
+                    <button type="submit">Eintrag veröffentlichen</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- SECTION 4: TEILEN -->
+        <div id="teilen" class="section">
+            <div class="card">
+                <h2>Mit Freunden & Familie teilen</h2>
+                <div class="share-box">
+                    <p>Möchtest du deinen Baufortschritt mit deinen Liebsten teilen?</p>
+                </div>
+                <h3>Möglichkeiten zum Hosten:</h3>
+                <ul>
+                    <li><strong>Kostenlos & Einfach (GitHub Pages / Netlify / Vercel):</strong> Lade diese Datei auf Plattformen wie GitHub oder Netlify hoch, um eine eigene Online-Adresse (z. B. <code>unsere-sanierung.netlify.app</code>) zu erhalten.</li>
+                    <li><strong>Eigener Webspace:</strong> Falls du bereits eine Domain hast, lade die Datei einfach per FTP in deinen Webspace hoch.</li>
+                    <li><strong>Passwortschutz:</strong> Über deinen Webhosting-Anbieter kannst du einen Verzeichnisschutz (.htaccess) einrichten, damit nur Familie & Freunde mit Passwort Zugriff haben.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Navigation umschalten
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Datum auf heute setzen
+        document.getElementById('entry-date').valueAsDate = new Date();
+
+        // Lokaler Speicher für Daten
+        let entries = JSON.parse(localStorage.getItem('bau_entries')) || [
+            {
+                date: '2026-07-01',
+                title: 'Schlüsselübergabe!',
+                desc: 'Endlich ist es soweit. Wir haben die Schlüssel für unser neues Zuhause erhalten. Morgen startet der Rückbau.',
+                image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'
+            }
+        ];
+
+        let handwerker = JSON.parse(localStorage.getItem('bau_handwerker')) || [
+            { gewerk: 'Elektro', name: 'Elektro Schmidt GmbH', kontakt: 'Herr Schmidt / 0170-1234567' }
+        ];
+
+        // Tagebuch Rendern
+        function renderEntries() {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+
+            // Nach Datum sortieren (neueste zuerst)
+            entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            entries.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'card timeline-item';
+                div.innerHTML = `
+                    <div class="timeline-date">${formatDate(item.date)}</div>
+                    <h3>${item.title}</h3>
+                    <p>${item.desc}</p>
+                    ${item.image ? `<img src="${item.image}" class="timeline-img" alt="Baufortschritt">` : ''}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Handwerker Rendern
+        function renderHandwerker() {
+            const list = document.getElementById('handwerker-list');
+            list.innerHTML = '';
+            handwerker.forEach(hw => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${hw.gewerk}</strong></td>
+                    <td>${hw.name}</td>
+                    <td>${hw.kontakt}</td>
+                `;
+                list.appendChild(tr);
+            });
+        }
+
+        // Datum formatieren (YYYY-MM-DD -> DD.MM.YYYY)
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            return new Date(dateString).toLocaleDateString('de-DE', options);
+        }
+
+        // Neuer Tagebucheintrag speichern
+        document.getElementById('entry-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const date = document.getElementById('entry-date').value;
+            const title = document.getElementById('entry-title').value;
+            const desc = document.getElementById('entry-desc').value;
+            const fileInput = document.getElementById('entry-image');
+
+            const newEntry = { date, title, desc, image: '' };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    newEntry.image = e.target.result;
+                    saveEntry(newEntry);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveEntry(newEntry);
+            }
+        });
+
+        function saveEntry(entry) {
+            entries.push(entry);
+            localStorage.setItem('bau_entries', JSON.stringify(entries));
+            renderEntries();
+            document.getElementById('entry-form').reset();
+            document.getElementById('entry-date').valueAsDate = new Date();
+            showSection('tagebuch');
+        }
+
+        // Neuer Handwerker speichern
+        document.getElementById('handwerker-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const gewerk = document.getElementById('hw-gewerk').value;
+            const name = document.getElementById('hw-name').value;
+            const kontakt = document.getElementById('hw-kontakt').value;
+
+            handwerker.push({ gewerk, name, kontakt });
+            localStorage.setItem('bau_handwerker', JSON.stringify(handwerker));
+            renderHandwerker();
+            document.getElementById('handwerker-form').reset();
+        });
+
+        // Initiales Laden
+        renderEntries();
+        renderHandwerker();
+    </script>
+</body>
+</html>
