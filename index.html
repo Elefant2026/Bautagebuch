@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unser Bautagebuch – Haus-Sanierung</title>
+    <title>Balthasar-Neumann-Str. 14 – Bautagebuch</title>
     <style>
         :root {
             --primary: #2c3e50;
-            --secondary: #e67e22;
-            --bg: #f8f9fa;
+            --secondary: #d35400;
+            --secondary-hover: #e67e22;
+            --bg: #f4f6f8;
             --card-bg: #ffffff;
-            --text: #333333;
+            --text: #2c3e50;
+            --border: #e2e8f0;
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             line-height: 1.6;
             background-color: var(--bg);
             color: var(--text);
@@ -22,15 +26,39 @@
             padding: 0;
         }
 
-        header {
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80') center/cover;
-            color: white;
-            text-align: center;
-            padding: 60px 20px;
+        /* Passwort Overlay */
+        #password-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(44, 62, 80, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
         }
 
-        header h1 { margin: 0; font-size: 2.5rem; }
-        header p { font-size: 1.2rem; opacity: 0.9; }
+        .login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Protected Content */
+        #site-content { display: none; }
+
+        header {
+            background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
+            color: white;
+            text-align: center;
+            padding: 70px 20px 50px 20px;
+        }
+
+        header h1 { margin: 0; font-size: 2.8rem; letter-spacing: 0.5px; font-weight: 700; }
+        header p { font-size: 1.25rem; margin-top: 10px; opacity: 0.95; font-weight: 300; }
 
         nav {
             display: flex;
@@ -39,33 +67,32 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            flex-wrap: wrap;
         }
 
         nav a {
             color: white;
-            padding: 15px 25px;
+            padding: 16px 24px;
             text-decoration: none;
-            font-weight: bold;
-            transition: background 0.3s;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background 0.2s ease;
         }
 
-        nav a:hover { background-color: var(--secondary); }
+        nav a:hover, nav a.active-link { background-color: var(--secondary); }
 
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
+        .container { max-width: 1000px; margin: 35px auto; padding: 0 20px; }
         .section { display: none; }
         .section.active { display: block; }
 
         .card {
             background: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 10px;
+            padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
         }
 
         /* Timeline / Bautagebuch */
@@ -77,277 +104,642 @@
         }
 
         .timeline-date {
-            font-weight: bold;
+            font-weight: 700;
             color: var(--secondary);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
         }
 
-        .timeline-img {
-            max-width: 100%;
-            border-radius: 6px;
-            margin-top: 10px;
-            max-height: 400px;
-            object-fit: cover;
+        .participants-tag {
+            display: inline-block;
+            background-color: #e2e8f0;
+            color: #334155;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 8px;
+            margin-bottom: 12px;
         }
 
-        /* Formulare */
-        form input, form textarea, form select {
+        /* Media Gallery Grid */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 18px;
+        }
+
+        .media-item {
             width: 100%;
-            padding: 10px;
-            margin: 8px 0 18px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .media-item:hover {
+            transform: scale(1.02);
+        }
+
+        .media-item img, .media-item video {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Lightbox (Großansicht Modal) */
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #lightbox-content {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 6px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Formulare & Inputs */
+        form label { display: block; font-weight: 600; margin-top: 12px; margin-bottom: 4px; font-size: 0.95rem; }
+        form input[type="text"], form input[type="password"], form input[type="date"], form input[type="file"], form textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            background-color: #f8fafc;
         }
 
         button {
             background-color: var(--secondary);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 4px;
+            padding: 12px 24px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 1rem;
-            font-weight: bold;
-        }
-
-        button:hover { opacity: 0.9; }
-
-        /* Handwerker Tabellen */
-        table {
-            width: 100%;
-            border-collapse: collapse;
+            font-weight: 600;
+            transition: background 0.2s ease;
             margin-top: 10px;
         }
 
-        table th, table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+        button:hover { background-color: var(--secondary-hover); }
+
+        .action-buttons {
+            float: right;
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
         }
 
-        table th { background-color: #eee; }
+        .btn-edit { background-color: #2980b9; padding: 6px 12px; font-size: 0.85rem; margin: 0; }
+        .btn-edit:hover { background-color: #3498db; }
 
-        .share-box {
-            background: #e8f4f8;
-            border-left: 4px solid #3498db;
-            padding: 15px;
-            margin-bottom: 20px;
+        .btn-delete { background-color: #e74c3c; padding: 6px 12px; font-size: 0.85rem; margin: 0; }
+        .btn-delete:hover { background-color: #c0392b; }
+
+        .btn-cancel { background-color: #7f8c8d; margin-left: 10px; }
+        .btn-cancel:hover { background-color: #95a5a6; }
+
+        /* Share Link Styling */
+        .share-container {
+            background: #f8fafc;
+            border: 1px dashed var(--secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
         }
+
+        .share-label {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .share-link-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--secondary);
+            text-decoration: underline;
+            word-break: break-all;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .share-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .share-input-group input { margin-bottom: 0 !important; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        table th, table td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        table th { background-color: #f1f5f9; font-weight: 600; }
 
         @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
             nav { flex-direction: column; text-align: center; }
+            nav a { padding: 12px; }
+            .share-input-group { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Unser Bautagebuch</h1>
-        <p>Die Sanierung unseres Einfamilienhauses Schritt für Schritt</p>
-    </header>
+    <!-- LIGHTBOX MODAL (Großansicht für Bilder & Videos) -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <div id="lightbox-container" onclick="event.stopPropagation()"></div>
+    </div>
 
-    <nav>
-        <a href="#" onclick="showSection('tagebuch')">Bautagebuch</a>
-        <a href="#" onclick="showSection('handwerker')">Handwerksfirmen</a>
-        <a href="#" onclick="showSection('neu')">+ Eintrag hinzufügen</a>
-        <a href="#" onclick="showSection('teilen')">Teilen</a>
-    </nav>
-
-    <div class="container">
-
-        <!-- SECTION 1: BAUTAGEBUCH -->
-        <div id="tagebuch" class="section active">
-            <h2>Aktueller Fortschritt</h2>
-            <div id="timeline-container">
-                <!-- Einträge werden hier dynamisch eingefügt -->
-            </div>
+    <!-- PASSWORT ABFRAGE OVERLAY -->
+    <div id="password-overlay">
+        <div class="login-card">
+            <h2>Balthasar-Neumann-Str. 14</h2>
+            <p>Bitte gib das Passwort ein, um das Bautagebuch zu öffnen:</p>
+            <form id="login-form" onsubmit="checkPassword(event)">
+                <input type="password" id="site-pass" placeholder="Passwort eingeben" required autofocus>
+                <button type="submit" style="width: 100%;">Zugang freischalten</button>
+            </form>
+            <p id="login-error" style="color: #e74c3c; display: none; margin-top: 10px; font-weight: 600;">Falsches Passwort!</p>
         </div>
+    </div>
 
-        <!-- SECTION 2: HANDWERKER -->
-        <div id="handwerker" class="section">
-            <h2>Beteiligte Handwerksfirmen</h2>
-            <div class="card">
-                <h3>Firma hinzufügen</h3>
-                <form id="handwerker-form">
-                    <input type="text" id="hw-gewerk" placeholder="Gewerk (z.B. Elektriker, Sanitär)" required>
-                    <input type="text" id="hw-name" placeholder="Firmenname" required>
-                    <input type="text" id="hw-kontakt" placeholder="Ansprechpartner / Telefon / E-Mail">
-                    <button type="submit">Firma speichern</button>
-                </form>
+    <!-- INHALT DER HOMEPAGE -->
+    <div id="site-content">
+        <header>
+            <h1>Balthasar-Neumann-Str. 14</h1>
+            <p>Bautagebuch & Dokumentation unserer Haus-Sanierung</p>
+        </header>
+
+        <nav>
+            <a href="#" onclick="showSection('tagebuch', this)" class="active-link">Bautagebuch</a>
+            <a href="#" onclick="showSection('handwerker', this)">Handwerksfirmen</a>
+            <a href="#" onclick="showSection('neu', this)" id="nav-add-btn">+ Eintrag hinzufügen</a>
+            <a href="#" onclick="showSection('teilen', this)">Teilen</a>
+        </nav>
+
+        <div class="container">
+
+            <!-- SECTION 1: BAUTAGEBUCH -->
+            <div id="tagebuch" class="section active">
+                <h2>Baufortschritt</h2>
+                <div id="timeline-container"></div>
             </div>
 
-            <div class="card">
-                <h3>Firmenübersicht</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Gewerk</th>
-                            <th>Firma</th>
-                            <th>Kontakt</th>
-                        </tr>
-                    </thead>
-                    <tbody id="handwerker-list">
-                        <!-- Handwerker werden hier geladen -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            <!-- SECTION 2: HANDWERKER -->
+            <div id="handwerker" class="section">
+                <h2>Beteiligte Handwerksfirmen</h2>
+                <div class="card">
+                    <h3>Neue Firma erfassen</h3>
+                    <form id="handwerker-form">
+                        <label for="hw-gewerk">Gewerk / Gewerktyp:</label>
+                        <input type="text" id="hw-gewerk" placeholder="z.B. Elektriker, Heizung & Sanitär" required>
 
-        <!-- SECTION 3: NEUER EINTRAG -->
-        <div id="neu" class="section">
-            <div class="card">
-                <h2>Neuen Bauschritt dokumentieren</h2>
-                <form id="entry-form">
-                    <label>Datum:</label>
-                    <input type="date" id="entry-date" required>
+                        <label for="hw-name">Firmenname:</label>
+                        <input type="text" id="hw-name" placeholder="z.B. Schmidt Haustechnik GmbH" required>
 
-                    <label>Titel des Bauschritts:</label>
-                    <input type="text" id="entry-title" placeholder="z.B. Abriss Wand Wohnzimmer" required>
+                        <label for="hw-kontakt">Ansprechpartner & Kontakt:</label>
+                        <input type="text" id="hw-kontakt" placeholder="z.B. Herr Schmidt / 0170-1234567">
 
-                    <label>Beschreibung / Notizen:</label>
-                    <textarea id="entry-desc" rows="4" placeholder="Was wurde genau gemacht? Gab es Besonderheiten?"></textarea>
-
-                    <label>Foto hinzufügen:</label>
-                    <input type="file" id="entry-image" accept="image/*">
-
-                    <button type="submit">Eintrag veröffentlichen</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- SECTION 4: TEILEN -->
-        <div id="teilen" class="section">
-            <div class="card">
-                <h2>Mit Freunden & Familie teilen</h2>
-                <div class="share-box">
-                    <p>Möchtest du deinen Baufortschritt mit deinen Liebsten teilen?</p>
+                        <button type="submit">Firma speichern</button>
+                    </form>
                 </div>
-                <h3>Möglichkeiten zum Hosten:</h3>
-                <ul>
-                    <li><strong>Kostenlos & Einfach (GitHub Pages / Netlify / Vercel):</strong> Lade diese Datei auf Plattformen wie GitHub oder Netlify hoch, um eine eigene Online-Adresse (z. B. <code>unsere-sanierung.netlify.app</code>) zu erhalten.</li>
-                    <li><strong>Eigener Webspace:</strong> Falls du bereits eine Domain hast, lade die Datei einfach per FTP in deinen Webspace hoch.</li>
-                    <li><strong>Passwortschutz:</strong> Über deinen Webhosting-Anbieter kannst du einen Verzeichnisschutz (.htaccess) einrichten, damit nur Familie & Freunde mit Passwort Zugriff haben.</li>
-                </ul>
-            </div>
-        </div>
 
+                <div class="card">
+                    <h3>Firmenübersicht</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Gewerk</th>
+                                <th>Firma</th>
+                                <th>Kontakt</th>
+                                <th>Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody id="handwerker-list"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION 3: NEUER / EDIT EINTRAG -->
+            <div id="neu" class="section">
+                <div class="card">
+                    <h2 id="form-heading">Neuen Bauschritt dokumentieren</h2>
+                    <form id="entry-form">
+                        <input type="hidden" id="edit-entry-id" value="">
+
+                        <label for="entry-date">Datum:</label>
+                        <input type="date" id="entry-date" required>
+
+                        <label for="entry-title">Titel des Bauschritts:</label>
+                        <input type="text" id="entry-title" placeholder="z.B. Entkernung Erdgeschoss" required>
+
+                        <label for="entry-people">Anwesende / Beteiligte Personen:</label>
+                        <input type="text" id="entry-people" placeholder="z.B. Markus, Lisa, Herr Müller (Elektriker)">
+
+                        <label for="entry-desc">Beschreibung / Notizen:</label>
+                        <textarea id="entry-desc" rows="4" placeholder="Was wurde heute gemacht?"></textarea>
+
+                        <label for="entry-media">Bilder & Videos hochladen (Zusätzliche Medien hinzufügen):</label>
+                        <input type="file" id="entry-media" accept="image/*,video/*" multiple>
+
+                        <button type="submit" id="submit-btn">Eintrag veröffentlichen</button>
+                        <button type="button" id="cancel-edit-btn" class="btn-cancel" style="display: none;" onclick="cancelEdit()">Abbrechen</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECTION 4: TEILEN -->
+            <div id="teilen" class="section">
+                <div class="card">
+                    <h2>Mit Freunden & Familie teilen</h2>
+                    <p>Nutze die folgende Verlinkung, um deinen Baufortschritt per WhatsApp, E-Mail oder Chat zu teilen:</p>
+                    
+                    <div class="share-container">
+                        <span class="share-label">Freigabe-Link:</span>
+                        <a href="#" id="share-link-anchor" class="share-link-display" target="_blank">Sanierung Balthasar-Neumann-Str. 14</a>
+                        
+                        <div class="share-input-group">
+                            <input type="text" id="share-url-field" readonly>
+                            <button onclick="copyShareLink()">Link kopieren</button>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">Passwort für deine Besucher</h3>
+                    <p>Deine Freunde benötigen zur Ansicht folgendes Passwort: <strong style="color: var(--secondary);">Balthasar2026</strong></p>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script>
-        // Navigation umschalten
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+        // PASSWORT-EINSTELLUNG
+        const SECRET_PASS = "Balthasar2026"; 
+
+        function checkPassword(e) {
+            e.preventDefault();
+            const inputPass = document.getElementById('site-pass').value;
+            if (inputPass === SECRET_PASS) {
+                document.getElementById('password-overlay').style.display = 'none';
+                document.getElementById('site-content').style.display = 'block';
+                sessionStorage.setItem('authenticated', 'true');
+                initDB();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
         }
 
-        // Datum auf heute setzen
-        document.getElementById('entry-date').valueAsDate = new Date();
+        // Auto-Login für die aktuelle Browser-Sitzung
+        if (sessionStorage.getItem('authenticated') === 'true') {
+            document.getElementById('password-overlay').style.display = 'none';
+            document.getElementById('site-content').style.display = 'block';
+        }
 
-        // Lokaler Speicher für Daten
-        let entries = JSON.parse(localStorage.getItem('bau_entries')) || [
-            {
-                date: '2026-07-01',
-                title: 'Schlüsselübergabe!',
-                desc: 'Endlich ist es soweit. Wir haben die Schlüssel für unser neues Zuhause erhalten. Morgen startet der Rückbau.',
-                image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'
+        // TEILEN LINK
+        function setupShareLink() {
+            const baseUrl = window.location.href.split('#')[0];
+            const sanierungUrl = baseUrl + '#Sanierung';
+            
+            const shareAnchor = document.getElementById('share-link-anchor');
+            shareAnchor.href = sanierungUrl;
+            shareAnchor.innerText = "Sanierung: Balthasar-Neumann-Str. 14";
+
+            document.getElementById('share-url-field').value = sanierungUrl;
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('share-url-field');
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            alert("Der Link zur Sanierung wurde in die Zwischenablage kopiert!");
+        }
+
+        // LIGHTBOX GROSSANSICHT FUNKTIONEN
+        function openLightbox(url, type) {
+            const lightbox = document.getElementById('lightbox');
+            const container = document.getElementById('lightbox-container');
+            container.innerHTML = '';
+
+            if (type === 'image') {
+                const img = document.createElement('img');
+                img.src = url;
+                img.id = 'lightbox-content';
+                container.appendChild(img);
+            } else if (type === 'video') {
+                const video = document.createElement('video');
+                video.src = url;
+                video.controls = true;
+                video.autoplay = true;
+                video.id = 'lightbox-content';
+                container.appendChild(video);
             }
-        ];
 
-        let handwerker = JSON.parse(localStorage.getItem('bau_handwerker')) || [
-            { gewerk: 'Elektro', name: 'Elektro Schmidt GmbH', kontakt: 'Herr Schmidt / 0170-1234567' }
-        ];
+            lightbox.style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const container = document.getElementById('lightbox-container');
+            container.innerHTML = '';
+            lightbox.style.display = 'none';
+        }
+
+        // INDEXEDDB DATENBANK
+        let db;
+        function initDB() {
+            const request = indexedDB.open("BalthasarBauDB", 1);
+            request.onupgradeneeded = function(e) {
+                db = e.target.result;
+                if (!db.objectStoreNames.contains("entries")) db.createObjectStore("entries", { keyPath: "id" });
+                if (!db.objectStoreNames.contains("handwerker")) db.createObjectStore("handwerker", { keyPath: "id" });
+            };
+            request.onsuccess = function(e) {
+                db = e.target.result;
+                renderEntries();
+                renderHandwerker();
+                setupShareLink();
+            };
+        }
+
+        if (sessionStorage.getItem('authenticated') === 'true') {
+            initDB();
+        }
+
+        // Navigation
+        function showSection(id, element) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active-link'));
+            document.getElementById(id).classList.add('active');
+            if (element) element.classList.add('active-link');
+        }
+
+        document.getElementById('entry-date').valueAsDate = new Date();
 
         // Tagebuch Rendern
         function renderEntries() {
-            const container = document.getElementById('timeline-container');
-            container.innerHTML = '';
+            if (!db) return;
+            const tx = db.transaction("entries", "readonly");
+            const store = tx.objectStore("entries");
+            const req = store.getAll();
 
-            // Nach Datum sortieren (neueste zuerst)
-            entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+            req.onsuccess = function() {
+                const entries = req.result;
+                const container = document.getElementById('timeline-container');
+                container.innerHTML = '';
 
-            entries.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'card timeline-item';
-                div.innerHTML = `
-                    <div class="timeline-date">${formatDate(item.date)}</div>
-                    <h3>${item.title}</h3>
-                    <p>${item.desc}</p>
-                    ${item.image ? `<img src="${item.image}" class="timeline-img" alt="Baufortschritt">` : ''}
-                `;
-                container.appendChild(div);
-            });
+                if (entries.length === 0) {
+                    container.innerHTML = '<p>Noch keine Einträge vorhanden.</p>';
+                    return;
+                }
+
+                entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+                entries.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'card timeline-item';
+                    
+                    let peopleHtml = '';
+                    if (item.people && item.people.trim() !== '') {
+                        peopleHtml = `<div class="participants-tag">👤 Beteiligt: ${item.people}</div>`;
+                    }
+
+                    let mediaHtml = '';
+                    if (item.media && item.media.length > 0) {
+                        mediaHtml = '<div class="media-grid">';
+                        item.media.forEach(m => {
+                            const url = URL.createObjectURL(m.file);
+                            if (m.type === 'image') {
+                                mediaHtml += `<div class="media-item" onclick="openLightbox('${url}', 'image')"><img src="${url}" loading="lazy" alt="Baufortschritt"></div>`;
+                            } else if (m.type === 'video') {
+                                mediaHtml += `<div class="media-item" onclick="openLightbox('${url}', 'video')"><video src="${url}"></video></div>`;
+                            }
+                        });
+                        mediaHtml += '</div>';
+                    }
+
+                    div.innerHTML = `
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="editEntry(${item.id})">Bearbeiten</button>
+                            <button class="btn-delete" onclick="deleteEntry(${item.id})">Löschen</button>
+                        </div>
+                        <div class="timeline-date">${formatDate(item.date)}</div>
+                        <h3 style="margin-top: 5px; margin-bottom: 5px; color: var(--primary);">${item.title}</h3>
+                        ${peopleHtml}
+                        <p style="white-space: pre-line; margin-top: 5px;">${item.desc}</p>
+                        ${mediaHtml}
+                        <div style="clear: both;"></div>
+                    `;
+                    container.appendChild(div);
+                });
+            };
+        }
+
+        // EINTRAG BEARBEITEN
+        function editEntry(id) {
+            const tx = db.transaction("entries", "readonly");
+            const store = tx.objectStore("entries");
+            const req = store.get(id);
+
+            req.onsuccess = function() {
+                const item = req.result;
+                if (!item) return;
+
+                document.getElementById('edit-entry-id').value = item.id;
+                document.getElementById('entry-date').value = item.date;
+                document.getElementById('entry-title').value = item.title;
+                document.getElementById('entry-people').value = item.people || '';
+                document.getElementById('entry-desc').value = item.desc || '';
+
+                document.getElementById('form-heading').innerText = "Bauschritt bearbeiten";
+                
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.innerText = "Änderungen speichern";
+                submitBtn.style.backgroundColor = "#2980b9";
+
+                document.getElementById('cancel-edit-btn').style.display = "inline-block";
+
+                showSection('neu', document.getElementById('nav-add-btn'));
+            };
+        }
+
+        function cancelEdit() {
+            document.getElementById('edit-entry-id').value = "";
+            document.getElementById('entry-form').reset();
+            document.getElementById('entry-date').valueAsDate = new Date();
+
+            document.getElementById('form-heading').innerText = "Neuen Bauschritt dokumentieren";
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerText = "Eintrag veröffentlichen";
+            submitBtn.style.backgroundColor = "var(--secondary)";
+
+            document.getElementById('cancel-edit-btn').style.display = "none";
+            showSection('tagebuch', document.querySelector('nav a'));
         }
 
         // Handwerker Rendern
         function renderHandwerker() {
-            const list = document.getElementById('handwerker-list');
-            list.innerHTML = '';
-            handwerker.forEach(hw => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${hw.gewerk}</strong></td>
-                    <td>${hw.name}</td>
-                    <td>${hw.kontakt}</td>
-                `;
-                list.appendChild(tr);
-            });
+            if (!db) return;
+            const tx = db.transaction("handwerker", "readonly");
+            const store = tx.objectStore("handwerker");
+            const req = store.getAll();
+
+            req.onsuccess = function() {
+                const list = document.getElementById('handwerker-list');
+                list.innerHTML = '';
+                const handwerker = req.result;
+
+                if (handwerker.length === 0) {
+                    list.innerHTML = '<tr><td colspan="4">Keine Handwerksfirmen hinterlegt.</td></tr>';
+                    return;
+                }
+
+                handwerker.forEach(hw => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${hw.gewerk}</strong></td>
+                        <td>${hw.name}</td>
+                        <td>${hw.kontakt || '-'}</td>
+                        <td><button class="btn-delete" style="float:none; margin:0;" onclick="deleteHandwerker(${hw.id})">Entfernen</button></td>
+                    `;
+                    list.appendChild(tr);
+                });
+            };
         }
 
-        // Datum formatieren (YYYY-MM-DD -> DD.MM.YYYY)
         function formatDate(dateString) {
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-            return new Date(dateString).toLocaleDateString('de-DE', options);
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : dateString;
         }
 
-        // Neuer Tagebucheintrag speichern
+        // Eintrag speichern (Neu oder Bearbeitet)
         document.getElementById('entry-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const editId = document.getElementById('edit-entry-id').value;
             const date = document.getElementById('entry-date').value;
             const title = document.getElementById('entry-title').value;
+            const people = document.getElementById('entry-people').value;
             const desc = document.getElementById('entry-desc').value;
-            const fileInput = document.getElementById('entry-image');
+            const fileInput = document.getElementById('entry-media');
 
-            const newEntry = { date, title, desc, image: '' };
-
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    newEntry.image = e.target.result;
-                    saveEntry(newEntry);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                saveEntry(newEntry);
+            let newMediaItems = [];
+            if (fileInput.files && fileInput.files.length > 0) {
+                Array.from(fileInput.files).forEach(file => {
+                    newMediaItems.push({
+                        type: file.type.startsWith('video/') ? 'video' : 'image',
+                        file: file
+                    });
+                });
             }
+
+            const tx = db.transaction("entries", "readwrite");
+            const store = tx.objectStore("entries");
+
+            if (editId) {
+                // Bei Bearbeitung: Vorherigen Eintrag abrufen, um Medien zu erhalten
+                const targetId = Number(editId);
+                const req = store.get(targetId);
+
+                req.onsuccess = function() {
+                    const existingItem = req.result;
+                    const combinedMedia = (existingItem.media || []).concat(newMediaItems);
+
+                    const updatedEntry = {
+                        id: targetId,
+                        date,
+                        title,
+                        people,
+                        desc,
+                        media: combinedMedia
+                    };
+
+                    store.put(updatedEntry);
+                };
+            } else {
+                // Neuer Eintrag
+                const newEntry = {
+                    id: Date.now(),
+                    date,
+                    title,
+                    people,
+                    desc,
+                    media: newMediaItems
+                };
+                store.add(newEntry);
+            }
+
+            tx.oncomplete = function() {
+                cancelEdit(); // Setzt Formular & Buttons zurück
+                renderEntries();
+            };
         });
 
-        function saveEntry(entry) {
-            entries.push(entry);
-            localStorage.setItem('bau_entries', JSON.stringify(entries));
-            renderEntries();
-            document.getElementById('entry-form').reset();
-            document.getElementById('entry-date').valueAsDate = new Date();
-            showSection('tagebuch');
+        // Löschen-Funktionen
+        function deleteEntry(id) {
+            if (confirm('Eintrag wirklich löschen?')) {
+                const tx = db.transaction("entries", "readwrite");
+                tx.objectStore("entries").delete(id);
+                tx.oncomplete = function() { renderEntries(); };
+            }
         }
 
-        // Neuer Handwerker speichern
+        function deleteHandwerker(id) {
+            if (confirm('Firma entfernen?')) {
+                const tx = db.transaction("handwerker", "readwrite");
+                tx.objectStore("handwerker").delete(id);
+                tx.oncomplete = function() { renderHandwerker(); };
+            }
+        }
+
         document.getElementById('handwerker-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const gewerk = document.getElementById('hw-gewerk').value;
             const name = document.getElementById('hw-name').value;
             const kontakt = document.getElementById('hw-kontakt').value;
 
-            handwerker.push({ gewerk, name, kontakt });
-            localStorage.setItem('bau_handwerker', JSON.stringify(handwerker));
-            renderHandwerker();
-            document.getElementById('handwerker-form').reset();
+            const tx = db.transaction("handwerker", "readwrite");
+            tx.objectStore("handwerker").add({ id: Date.now(), gewerk, name, kontakt });
+            tx.oncomplete = function() {
+                renderHandwerker();
+                document.getElementById('handwerker-form').reset();
+            };
         });
-
-        // Initiales Laden
-        renderEntries();
-        renderHandwerker();
     </script>
 </body>
 </html>
